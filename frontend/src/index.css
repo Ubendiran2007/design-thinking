@@ -1,0 +1,128 @@
+:root {
+  --primary: #1E3A8A;
+  --secondary: #F3F4F6;
+  --accent: #10B981;
+  --text: #1f2937;
+  --card: #ffffff;
+}
+
+body {
+  margin: 0;
+  background: var(--secondary);
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.govt-nav {
+  background: var(--primary);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: #172d6b;
+  --bs-btn-hover-border-color: #172d6b;
+}
+
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background: #0f9a6d;
+  border-color: #0f9a6d;
+  color: #fff;
+}
+
+.hero-section {
+  background: linear-gradient(130deg, #eff6ff 0%, #ffffff 60%, #ecfdf5 100%);
+}
+
+.glass-card,
+.metric-card,
+.admin-sidebar {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+}
+
+.metric-card {
+  padding: 1rem 1.2rem;
+}
+
+.timeline-wrap {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.timeline-step {
+  text-align: center;
+  min-width: 120px;
+}
+
+.timeline-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 2px solid #cbd5e1;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 0.5rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.timeline-dot.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.footer {
+  background: #111827;
+  color: #d1d5db;
+}
+
+body.dark-mode {
+  --secondary: #0f172a;
+  --text: #e5e7eb;
+  --card: #111827;
+  background: var(--secondary);
+  color: var(--text);
+}
+
+body.dark-mode .card,
+body.dark-mode .metric-card,
+body.dark-mode .glass-card,
+body.dark-mode .admin-sidebar {
+  background: #111827 !important;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+body.dark-mode .text-muted {
+  color: #94a3b8 !important;
+}
