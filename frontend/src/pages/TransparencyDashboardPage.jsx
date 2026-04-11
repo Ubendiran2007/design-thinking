@@ -41,8 +41,8 @@ function TransparencyDashboardPage() {
         <div className="col-lg-6">
           <div className="card border-0 shadow-sm p-3 h-100">
             <h6>Category-wise Distribution</h6>
-            <div style={{ width: '100%', height: 300 }}>
-              <ResponsiveContainer>
+            <div style={{ width: '100%', height: 300, position: 'relative' }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={stats.categoryDistribution} dataKey="value" nameKey="name" outerRadius={100} label>
                     {stats.categoryDistribution.map((entry, index) => (
@@ -59,8 +59,8 @@ function TransparencyDashboardPage() {
         <div className="col-lg-6">
           <div className="card border-0 shadow-sm p-3 h-100">
             <h6>Monthly Complaint Trend</h6>
-            <div style={{ width: '100%', height: 300 }}>
-              <ResponsiveContainer>
+            <div style={{ width: '100%', height: 300, position: 'relative' }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={stats.monthlyTrend}>
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -74,8 +74,8 @@ function TransparencyDashboardPage() {
         <div className="col-12">
           <div className="card border-0 shadow-sm p-3">
             <h6>Resolved vs Pending</h6>
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer>
+            <div style={{ width: '100%', height: 300, position: 'relative' }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[{ name: 'Complaints', Resolved: stats.resolved, Pending: stats.pending }]}>
                   <XAxis dataKey="name" />
                   <YAxis />
