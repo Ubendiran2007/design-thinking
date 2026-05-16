@@ -1,13 +1,13 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = import.meta.env.VITE_API_URL || 'https://design-thinking-backend.onrender.com/api'
 
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
 })
 
-// Optional: Add a request interceptor to include the JWT token if available
+// Add a request interceptor to include the JWT token
 api.interceptors.request.use((config) => {
   const auth = JSON.parse(localStorage.getItem('pgts-auth'))
   if (auth && auth.token) {
@@ -15,6 +15,15 @@ api.interceptors.request.use((config) => {
   }
   return config
 })
+
+// Add a response interceptor for global error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.message || 'Something went wrong'
+    return Promise.reject(new Error(message))
+  }
+)
 
 export async function loginUser(payload) {
   const { data } = await api.post('/auth/login', payload)
@@ -52,9 +61,23 @@ export async function updateComplaint(id, updates) {
 }
 
 export async function getTransparencyStats() {
-  const { data } = await api.get('/stats')
+  const { data } = await api.get('/complaints/stats') 
+  return data
+}
+
+export async function getAllUsers() {
+  const { data } = await api.get('/users')
+  return data
+}
+
+export async function updateUser(id, updates) {
+  const { data } = await api.patch(`/users/${id}`, updates)
+  return data
+}
+
+export async function getDepartmentComplaints(deptName) {
+  const { data } = await api.get(`/complaints/dept/${deptName}`)
   return data
 }
 
 export default api
-

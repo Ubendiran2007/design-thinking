@@ -1,37 +1,42 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import { Send, MapPin, Tag, FileText, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { submitComplaint } from '../services/api'
 
+const categories = ['Infrastructure', 'Water Supply', 'Sanitation', 'Public Safety', 'Other']
+
 function SubmitComplaintPage() {
   const { auth } = useAuth()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    location: '',
-    file: null,
+  
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      email: auth.email || ''
+    }
   })
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    if (!form.title || !form.description || !form.category || !form.location) {
-      toast.error('Please fill all required fields.')
-      return
+  const onSubmit = async (data) => {
+    if (!auth.isAuthenticated) {
+      toast.error('You must be logged in to submit a complaint')
+      return navigate('/login')
     }
+
     setLoading(true)
     try {
-      const payload = {
-        ...form,
-        file: form.file?.name || null,
-        userEmail: auth.email || 'citizen@example.com',
-      }
-      const complaint = await submitComplaint(payload)
-      toast.success(`Complaint submitted successfully. ID: ${complaint.id}`)
-      setForm({ title: '', description: '', category: '', location: '', file: null })
-    } catch (error) {
-      toast.error(error.message || 'Could not submit complaint.')
+      const response = await submitComplaint({ 
+        ...data, 
+        userId: auth.userId || auth.id,
+        userEmail: auth.email 
+      })
+      toast.success(`Complaint submitted! ID: ${response.id || response._id}`)
+      navigate('/dashboard')
+    } catch (err) {
+      toast.error(err.message || 'Failed to submit complaint')
     } finally {
       setLoading(false)
     }
@@ -39,48 +44,106 @@ function SubmitComplaintPage() {
 
   return (
     <div className="container py-5">
-      <div className="card border-0 shadow-sm">
-        <div className="card-body p-4 p-md-5">
-          <h3 className="mb-4">Submit a Complaint</h3>
-          <form onSubmit={onSubmit}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label className="form-label">Title *</label>
-                <input className="form-control" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+      <div className="row justify-content-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="col-lg-8"
+        >
+          <div className="card border-0 shadow-lg p-4 rounded-4">
+            <div className="d-flex align-items-center gap-3 mb-4">
+              <div className="bg-primary bg-opacity-10 p-3 rounded-circle">
+                <FileText className="text-primary" size={28} />
               </div>
-              <div className="col-md-6">
-                <label className="form-label">Category *</label>
-                <select className="form-select" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                  <option value="">Select category</option>
-                  <option>Infrastructure</option>
-                  <option>Water Supply</option>
-                  <option>Sanitation</option>
-                  <option>Public Safety</option>
-                </select>
-              </div>
-              <div className="col-12">
-                <label className="form-label">Description *</label>
-                <textarea rows="4" className="form-control" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Location *</label>
-                <input className="form-control" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">File Upload</label>
-                <input
-                  type="file"
-                  className="form-control"
-                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
-                  onChange={(e) => setForm({ ...form, file: e.target.files?.[0] || null })}
-                />
+              <div>
+                <h3 className="fw-bold mb-0">Submit Grievance</h3>
+                <p className="text-muted small mb-0">Your report will be handled with full transparency and accountability.</p>
               </div>
             </div>
-            <button className="btn btn-primary mt-4" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Complaint'}
-            </button>
-          </form>
-        </div>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="row g-4">
+                <div className="col-md-12">
+                  <label className="form-label small fw-bold">Complaint Title</label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-transparent border-end-0">
+                      <Tag size={18} className="text-muted" />
+                    </span>
+                    <input
+                      type="text"
+                      className={`form-control border-start-0 ps-0 ${errors.title ? 'is-invalid' : ''}`}
+                      placeholder="Brief summary of the issue"
+                      {...register('title', { required: 'Title is required' })}
+                    />
+                    {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold">Category</label>
+                  <select 
+                    className={`form-select ${errors.category ? 'is-invalid' : ''}`}
+                    {...register('category', { required: 'Please select a category' })}
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  {errors.category && <div className="invalid-feedback">{errors.category.message}</div>}
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold">Location</label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-transparent border-end-0">
+                      <MapPin size={18} className="text-muted" />
+                    </span>
+                    <input
+                      type="text"
+                      className={`form-control border-start-0 ps-0 ${errors.location ? 'is-invalid' : ''}`}
+                      placeholder="Area or Street name"
+                      {...register('location', { required: 'Location is required' })}
+                    />
+                    {errors.location && <div className="invalid-feedback">{errors.location.message}</div>}
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label small fw-bold">Detailed Description</label>
+                  <textarea
+                    rows="4"
+                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                    placeholder="Provide as much detail as possible to help us resolve the issue faster..."
+                    {...register('description', { required: 'Description is required' })}
+                  ></textarea>
+                  {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
+                </div>
+
+                <div className="col-12 mt-4 text-center">
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+                          <Loader2 size={20} />
+                        </motion.div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} />
+                        File Complaint
+                      </>
+                    )}
+                  </button>
+                  <p className="small text-muted mt-3">By submitting, you agree to provide truthful information.</p>
+                </div>
+              </div>
+            </form>
+          </div>
+        </motion.div>
       </div>
     </div>
   )

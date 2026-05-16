@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
+app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/stats', statsRoutes);
 
 app.get('/', (req, res) => {

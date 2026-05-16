@@ -12,11 +12,14 @@ import SubmitComplaintPage from './pages/SubmitComplaintPage'
 import TrackComplaintPage from './pages/TrackComplaintPage'
 import TransparencyDashboardPage from './pages/TransparencyDashboardPage'
 import UserDashboardPage from './pages/UserDashboardPage'
+import DeptDashboardPage from './pages/DeptDashboardPage'
 
 function ProtectedRoute({ children, role }) {
   const { auth } = useAuth()
   if (!auth.isAuthenticated) return <Navigate to="/login" replace />
-  if (role && auth.role !== role) return <Navigate to="/" replace />
+  // Support multiple roles if array, or single string
+  const roles = Array.isArray(role) ? role : [role]
+  if (role && !roles.includes(auth.role)) return <Navigate to="/login" replace />
   return children
 }
 
@@ -40,6 +43,7 @@ function AppRoutes() {
           <Route path="/track" element={<TrackComplaintPage />} />
           <Route path="/dashboard" element={<ProtectedRoute role="user"><UserDashboardPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/dept" element={<ProtectedRoute role="department"><DeptDashboardPage /></ProtectedRoute>} />
           <Route path="/transparency" element={<TransparencyDashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

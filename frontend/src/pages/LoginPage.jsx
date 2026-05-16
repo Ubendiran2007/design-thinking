@@ -1,36 +1,28 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import { Mail, Lock, LogIn, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { loginUser } from '../services/api'
 
 function LoginPage() {
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  
+  const { register, handleSubmit, formState: { errors } } = useForm()
 
-  const validate = () => {
-    const nextErrors = {}
-    if (!form.email) nextErrors.email = 'Email is required'
-    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = 'Enter a valid email'
-    if (!form.password) nextErrors.password = 'Password is required'
-    setErrors(nextErrors)
-    return Object.keys(nextErrors).length === 0
-  }
-
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    if (!validate()) return
+  const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const user = await loginUser(form)
-      login(user)
-      toast.success('Login successful')
-      navigate(user.role === 'admin' ? '/admin' : '/dashboard')
-    } catch (error) {
-      toast.error(error.message || 'Unable to login')
+      const response = await loginUser(data)
+      login(response)
+      toast.success('Login successful! Welcome back.')
+      navigate(response.role === 'admin' ? '/admin' : '/dashboard')
+    } catch (err) {
+      toast.error(err.message || 'Invalid credentials')
     } finally {
       setLoading(false)
     }
@@ -39,41 +31,81 @@ function LoginPage() {
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              <h3 className="mb-3">Login</h3>
-              <form onSubmit={onSubmit} noValidate>
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="col-md-5"
+        >
+          <div className="card border-0 shadow-lg p-4 rounded-4">
+            <div className="text-center mb-4">
+              <div className="bg-primary bg-opacity-10 d-inline-flex p-3 rounded-circle mb-3">
+                <LogIn className="text-primary" size={32} />
+              </div>
+              <h2 className="fw-bold">Welcome Back</h2>
+              <p className="text-muted small">Sign in to manage your grievances and track progress.</p>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="mb-3">
+                <label className="form-label small fw-bold">Email Address</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-transparent border-end-0">
+                    <Mail size={18} className="text-muted" />
+                  </span>
                   <input
                     type="email"
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className={`form-control border-start-0 ps-0 ${errors.email ? 'is-invalid' : ''}`}
+                    placeholder="name@example.com"
+                    {...register('email', { 
+                      required: 'Email is required',
+                      pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' }
+                    })}
                   />
-                  <div className="invalid-feedback">{errors.email}</div>
+                  {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
                 </div>
-                <div className="mb-3">
-                  <label className="form-label">Password</label>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label small fw-bold">Password</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-transparent border-end-0">
+                    <Lock size={18} className="text-muted" />
+                  </span>
                   <input
                     type="password"
-                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className={`form-control border-start-0 ps-0 ${errors.password ? 'is-invalid' : ''}`}
+                    placeholder="••••••••"
+                    {...register('password', { required: 'Password is required' })}
                   />
-                  <div className="invalid-feedback">{errors.password}</div>
+                  {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
                 </div>
-                <button disabled={loading} className="btn btn-primary w-100">
-                  {loading ? 'Signing in...' : 'Sign In'}
-                </button>
-              </form>
-              <p className="mt-3 mb-0 small text-muted">
-                No account? <Link to="/register">Register now</Link>
-              </p>
-            </div>
+              </div>
+
+              <button 
+                type="submit" 
+                className="btn btn-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+                      <Loader2 size={20} />
+                    </motion.div>
+                    Signing in...
+                  </>
+                ) : (
+                  <>Sign In</>
+                )}
+              </button>
+
+              <div className="text-center mt-4">
+                <p className="small text-muted mb-0">
+                  Don't have an account? <Link to="/register" className="text-primary fw-bold text-decoration-none">Register here</Link>
+                </p>
+              </div>
+            </form>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

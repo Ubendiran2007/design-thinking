@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const subTaskSchema = mongoose.Schema({
+  taskName: { type: String, required: true },
+  department: { type: String, required: true },
+  status: { 
+    type: String, 
+    required: true, 
+    default: 'Pending',
+    enum: ['Pending', 'In Progress', 'Completed']
+  }
+}, { _id: true });
+
 const complaintSchema = mongoose.Schema(
   {
     complaintId: {
@@ -33,6 +44,13 @@ const complaintSchema = mongoose.Schema(
       required: true,
       default: 'Pending Assignment',
     },
+    priority: {
+      type: String,
+      required: true,
+      enum: ['High', 'Medium', 'Low'],
+      default: 'Medium',
+    },
+    subTasks: [subTaskSchema],
     userEmail: {
       type: String,
       required: true,

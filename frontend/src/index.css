@@ -6,6 +6,31 @@
   --card: #ffffff;
 }
 
+/* Department Dashboard Themes */
+.theme-blue { --dept-primary: #0d6efd; --dept-bg: #f0f7ff; }
+.theme-yellow { --dept-primary: #ffc107; --dept-bg: #fffbf0; }
+.theme-gray { --dept-primary: #6c757d; --dept-bg: #f8f9fa; }
+.theme-green { --dept-primary: #198754; --dept-bg: #f0fff4; }
+.theme-red { --dept-primary: #dc3545; --dept-bg: #fff5f5; }
+
+.dept-dashboard {
+  min-vh-100;
+  background-color: var(--dept-bg);
+  transition: all 0.3s ease;
+}
+
+.dept-dashboard .btn-primary { background-color: var(--dept-primary); border-color: var(--dept-primary); }
+.dept-dashboard .text-primary { color: var(--dept-primary) !important; }
+.dept-dashboard .bg-primary { background-color: var(--dept-primary) !important; }
+.dept-dashboard .border-primary { border-color: var(--dept-primary) !important; }
+
+.hover-scale { transition: transform 0.2s; }
+.hover-scale:hover { transform: scale(1.05); }
+
+.font-black { font-weight: 900; }
+.extra-small { font-size: 0.7rem; }
+.last-border-0:last-child { border-right: none !important; }
+
 body {
   margin: 0;
   background: var(--secondary);
