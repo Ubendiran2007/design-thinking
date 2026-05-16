@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://design-thinking-backend
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 35000, // Render free tier cold starts can take ~30s
 })
 
 // Add a request interceptor to include the JWT token
