@@ -24,17 +24,20 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    // allow requests with no origin (mobile apps, curl, Render health checks)
+    // allow requests with no origin (curl, Render health checks, mobile apps)
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    console.error(`CORS blocked for origin: ${origin}`);
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-app.options('*', cors()); // handle preflight for all routes
+};
+
+app.options('*', cors(corsOptions)); // handle preflight FIRST, with same config
+app.use(cors(corsOptions));          // then apply to all other requests
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
