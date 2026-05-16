@@ -14,7 +14,7 @@
 .theme-red { --dept-primary: #dc3545; --dept-bg: #fff5f5; }
 
 .dept-dashboard {
-  min-vh-100;
+  min-height: 100vh;
   background-color: var(--dept-bg);
   transition: all 0.3s ease;
 }
